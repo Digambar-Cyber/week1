@@ -1,0 +1,313 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "gpuType": "T4"
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    },
+    "accelerator": "GPU"
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "id": "S0scW0a2K4Ji",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "bec4f97e-3200-4401-8f8f-dec5361a698e"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Mounted at /content/drive\n"
+          ]
+        }
+      ],
+      "source": [
+        "# Mount the drive here\n",
+        "\n",
+        "from google.colab import drive\n",
+        "drive.mount('/content/drive')\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import zipfile\n",
+        "import os\n",
+        "\n",
+        "\n",
+        "# Define the path to the zip file and the extraction directory\n",
+        "zip_file_path = \"/content/drive/MyDrive/archive (2).zip\"\n",
+        "extract_dir = \"/content\"\n",
+        "\n",
+        "# Check if the zip file exists\n",
+        "if os.path.exists(zip_file_path):\n",
+        "    try:\n",
+        "        # Create a ZipFile object\n",
+        "        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:\n",
+        "            # Extract all contents to the specified directory\n",
+        "            zip_ref.extractall(extract_dir)\n",
+        "        print(f\"Successfully extracted '{zip_file_path}' to '{extract_dir}'\")\n",
+        "    except zipfile.BadZipFile:\n",
+        "        print(f\"Error: '{zip_file_path}' is not a valid zip file.\")\n",
+        "    except Exception as e:\n",
+        "        print(f\"An error occurred: {e}\")\n",
+        "else:\n",
+        "    print(f\"Error: '{zip_file_path}' does not exist.\")\n"
+      ],
+      "metadata": {
+        "id": "xOPw3ZCCSCLn",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "c717729b-7462-4986-c3dd-f18dc22dc84d"
+      },
+      "execution_count": 2,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Successfully extracted '/content/drive/MyDrive/archive (2).zip' to '/content'\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import numpy as np\n",
+        "import pandas as pd\n",
+        "import matplotlib.pyplot as plt\n",
+        "import pathlib\n",
+        "import os\n",
+        "import glob as gb\n",
+        "import glob\n",
+        "import cv2\n",
+        "import tensorflow as tf"
+      ],
+      "metadata": {
+        "id": "v2nuZfwuRwye"
+      },
+      "execution_count": 3,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "train='/content/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/train'\n"
+      ],
+      "metadata": {
+        "id": "-F97pJG8Rmet"
+      },
+      "execution_count": 4,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "size=224"
+      ],
+      "metadata": {
+        "id": "t0C6Ns6HTxui"
+      },
+      "execution_count": 5,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "train_generator=tf.keras.preprocessing.image.ImageDataGenerator(\n",
+        "    rotation_range=90,\n",
+        "    width_shift_range=0.0,\n",
+        "    height_shift_range=0.0,\n",
+        "    shear_range=0.0,\n",
+        "    zoom_range=0.0,\n",
+        "    horizontal_flip=False,\n",
+        "    vertical_flip=False,\n",
+        "    rescale=1/255.0,\n",
+        "    preprocessing_function=None,\n",
+        "    validation_split=0.1,\n",
+        ").flow_from_directory(train,\n",
+        "                      batch_size=164,\n",
+        "                      target_size=(size,size),\n",
+        "                      subset=\"training\",\n",
+        "                      color_mode='rgb', #\"rgb\", \"rgba\", or \"grayscale\"\n",
+        "                      class_mode='categorical',  # Use 'binary', 'sparse','categorical' or None as needed\n",
+        "                      shuffle=True)"
+      ],
+      "metadata": {
+        "id": "xGsuR2RjR-Ix",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "fc6c829e-db15-48d3-dfce-973007294558"
+      },
+      "execution_count": 6,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Found 63282 images belonging to 38 classes.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "train_generator.class_indices"
+      ],
+      "metadata": {
+        "id": "smaeQUueT3g0",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "20072881-b988-4ef7-baca-8273c961d805"
+      },
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "{'Apple___Apple_scab': 0,\n",
+              " 'Apple___Black_rot': 1,\n",
+              " 'Apple___Cedar_apple_rust': 2,\n",
+              " 'Apple___healthy': 3,\n",
+              " 'Blueberry___healthy': 4,\n",
+              " 'Cherry_(including_sour)___Powdery_mildew': 5,\n",
+              " 'Cherry_(including_sour)___healthy': 6,\n",
+              " 'Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot': 7,\n",
+              " 'Corn_(maize)___Common_rust_': 8,\n",
+              " 'Corn_(maize)___Northern_Leaf_Blight': 9,\n",
+              " 'Corn_(maize)___healthy': 10,\n",
+              " 'Grape___Black_rot': 11,\n",
+              " 'Grape___Esca_(Black_Measles)': 12,\n",
+              " 'Grape___Leaf_blight_(Isariopsis_Leaf_Spot)': 13,\n",
+              " 'Grape___healthy': 14,\n",
+              " 'Orange___Haunglongbing_(Citrus_greening)': 15,\n",
+              " 'Peach___Bacterial_spot': 16,\n",
+              " 'Peach___healthy': 17,\n",
+              " 'Pepper,_bell___Bacterial_spot': 18,\n",
+              " 'Pepper,_bell___healthy': 19,\n",
+              " 'Potato___Early_blight': 20,\n",
+              " 'Potato___Late_blight': 21,\n",
+              " 'Potato___healthy': 22,\n",
+              " 'Raspberry___healthy': 23,\n",
+              " 'Soybean___healthy': 24,\n",
+              " 'Squash___Powdery_mildew': 25,\n",
+              " 'Strawberry___Leaf_scorch': 26,\n",
+              " 'Strawberry___healthy': 27,\n",
+              " 'Tomato___Bacterial_spot': 28,\n",
+              " 'Tomato___Early_blight': 29,\n",
+              " 'Tomato___Late_blight': 30,\n",
+              " 'Tomato___Leaf_Mold': 31,\n",
+              " 'Tomato___Septoria_leaf_spot': 32,\n",
+              " 'Tomato___Spider_mites Two-spotted_spider_mite': 33,\n",
+              " 'Tomato___Target_Spot': 34,\n",
+              " 'Tomato___Tomato_Yellow_Leaf_Curl_Virus': 35,\n",
+              " 'Tomato___Tomato_mosaic_virus': 36,\n",
+              " 'Tomato___healthy': 37}"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 7
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#let's display some images from training set\n",
+        "\n",
+        "classes=list(train_generator.class_indices.keys())\n",
+        "plt.figure(figsize=(20,20))\n",
+        "for X_batch, y_batch in train_generator:\n",
+        "    # create a grid of 3x3 images\n",
+        "    for i in range(0,16):\n",
+        "        plt.subplot(4,4,i+1)\n",
+        "        plt.imshow(X_batch[i])\n",
+        "        plt.title(classes[np.where(y_batch[i]==1)[0][0]])   # when y is categorical\n",
+        "        # plt.title(classes[int(y_batch[i])])   # when y is binary or sparse\n",
+        "        plt.grid(None)\n",
+        "    # show the plot\n",
+        "    plt.show()\n",
+        "    break\n"
+      ],
+      "metadata": {
+        "id": "HZ8go396T840",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 1000
+        },
+        "outputId": "f1fda63b-5319-4147-f0bb-61ebc7b1e36d"
+      },
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<Figure size 2000x2000 with 16 Axes>"
+            ],
+            "image/png":  {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "\u001b[1m Total params: \u001b[0m\u001b[38;5;34m26,125,990\u001b[0m (99.66 MB)\n"
+            ],
+            "text/html": [
+              "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"font-weight: bold\"> Total params: </span><span style=\"color: #00af00; text-decoration-color: #00af00\">26,125,990</span> (99.66 MB)\n",
+              "</pre>\n"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "\u001b[1m Trainable params: \u001b[0m\u001b[38;5;34m26,125,990\u001b[0m (99.66 MB)\n"
+            ],
+            "text/html": [
+              "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"font-weight: bold\"> Trainable params: </span><span style=\"color: #00af00; text-decoration-color: #00af00\">26,125,990</span> (99.66 MB)\n",
+              "</pre>\n"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "\u001b[1m Non-trainable params: \u001b[0m\u001b[38;5;34m0\u001b[0m (0.00 B)\n"
+            ],
+            "text/html": [
+              "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"font-weight: bold\"> Non-trainable params: </span><span style=\"color: #00af00; text-decoration-color: #00af00\">0</span> (0.00 B)\n",
+              "</pre>\n"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "None\n"
+          ]
+        }
